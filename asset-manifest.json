@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/kickoff/static/css/main.0efde6e3.css",
+    "main.js": "/kickoff/static/js/main.fa38a35b.js",
+    "static/js/453.67041031.chunk.js": "/kickoff/static/js/453.67041031.chunk.js",
+    "index.html": "/kickoff/index.html",
+    "main.0efde6e3.css.map": "/kickoff/static/css/main.0efde6e3.css.map",
+    "main.fa38a35b.js.map": "/kickoff/static/js/main.fa38a35b.js.map",
+    "453.67041031.chunk.js.map": "/kickoff/static/js/453.67041031.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.0efde6e3.css",
+    "static/js/main.fa38a35b.js"
+  ]
+}
