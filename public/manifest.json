@@ -1,25 +1,97 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Kickoff",
+  "name": "Kickoff - Soccer Pickup Manager",
+  "description": "Professional pickup soccer management for Soccer Lovers of Bushwick",
   "icons": [
     {
       "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "type": "image/x-icon",
+      "sizes": "64x64 32x32 24x24 16x16"
     },
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#00DC82",
+  "background_color": "#0A0E27",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["sports", "utilities", "productivity"],
+  "prefer_related_applications": false,
+  "display_override": ["window-controls-overlay", "standalone"],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "handle_links": "preferred",
+  "capture_links": "existing-client-navigate",
+  "screenshots": [
+    {
+      "src": "screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Team management view"
+    },
+    {
+      "src": "screenshot-narrow.png",
+      "sizes": "640x1136",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile player signup"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start Timer",
+      "short_name": "Timer",
+      "description": "Quickly start a match timer",
+      "url": "/?tab=timer",
+      "icons": [
+        {
+          "src": "favicon.ico",
+          "sizes": "64x64"
+        }
+      ]
+    },
+    {
+      "name": "Add Player",
+      "short_name": "Add Player",
+      "description": "Register a new player",
+      "url": "/?tab=signup",
+      "icons": [
+        {
+          "src": "favicon.ico",
+          "sizes": "64x64"
+        }
+      ]
+    },
+    {
+      "name": "View Scoreboard",
+      "short_name": "Scores",
+      "description": "Check current standings",
+      "url": "/?tab=scoreboard",
+      "icons": [
+        {
+          "src": "favicon.ico",
+          "sizes": "64x64"
+        }
+      ]
+    }
+  ]
 }

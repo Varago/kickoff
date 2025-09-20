@@ -3,19 +3,41 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@react-hook/window-size": "^3.1.1",
+    "@react-spring/web": "^10.0.3",
+    "@tailwindcss/postcss": "^4.1.13",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
+    "@types/howler": "^2.2.12",
     "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.126",
     "@types/react": "^19.1.13",
+    "@types/react-beautiful-dnd": "^13.1.8",
     "@types/react-dom": "^19.1.9",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/uuid": "^10.0.0",
+    "ajv": "^8.17.1",
+    "date-fns": "^4.1.0",
+    "framer-motion": "^12.23.16",
+    "howler": "^2.2.4",
+    "lucide-react": "^0.544.0",
     "react": "^19.1.1",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-confetti": "^6.4.0",
     "react-dom": "^19.1.1",
+    "react-helmet-async": "^2.0.5",
+    "react-hot-toast": "^2.6.0",
+    "react-intersection-observer": "^9.16.0",
+    "react-router-dom": "^7.9.1",
     "react-scripts": "5.0.1",
+    "react-spring": "^10.0.3",
+    "react-use": "^17.6.0",
     "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4"
+    "uuid": "^13.0.0",
+    "web-vitals": "^2.1.4",
+    "workbox-precaching": "^7.3.0",
+    "zustand": "^5.0.8"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -40,5 +62,12 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "workbox-webpack-plugin": "^7.3.0"
   }
 }
