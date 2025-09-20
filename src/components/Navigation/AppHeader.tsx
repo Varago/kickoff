@@ -4,8 +4,6 @@ import { Users, Trophy, Calendar, Clock, ChevronDown, Wifi, WifiOff, Settings } 
 import { NavigationTab } from './Navigation';
 import { useGameStore } from '../../store/gameStore';
 import { Card } from '../shared/Card';
-import { SoundToggle } from '../shared/SoundSettings';
-import { HapticToggle } from '../shared/HapticSettings';
 import { UnifiedSettings } from '../shared/UnifiedSettings';
 import { KickoffLogo } from '../shared/KickoffLogo';
 
@@ -136,16 +134,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
           {/* Right: Status indicators and quick actions */}
           <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-            {/* Sound toggle - hidden on small screens */}
-            <div className="hidden sm:block">
-              <SoundToggle />
-            </div>
-
-            {/* Haptic toggle - hidden on small screens */}
-            <div className="hidden sm:block">
-              <HapticToggle />
-            </div>
-
             {/* Unified Settings button */}
             <motion.button
               whileHover={{ scale: 1.05 }}
