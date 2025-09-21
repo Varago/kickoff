@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Star, Save } from 'lucide-react';
-import { Player } from '../../types';
+import { Player, SKILL_LEVELS } from '../../types';
 import { useGameStore } from '../../store/gameStore';
 
 interface PlayerEditModalProps {
@@ -59,12 +59,6 @@ export const PlayerEditModal: React.FC<PlayerEditModalProps> = ({
 
   if (!isOpen || !player) return null;
 
-  const skillLevels = [
-    { value: 1, label: 'Beginner', description: 'New to soccer' },
-    { value: 2, label: 'Casual', description: 'Plays occasionally' },
-    { value: 3, label: 'Skilled', description: 'Experienced player' },
-    { value: 4, label: 'Expert', description: 'Highly skilled' }
-  ];
 
   return (
     <AnimatePresence>
@@ -146,7 +140,7 @@ export const PlayerEditModal: React.FC<PlayerEditModalProps> = ({
                 Skill Level
               </label>
               <div className="space-y-2">
-                {skillLevels.map((level) => (
+                {SKILL_LEVELS.map((level) => (
                   <motion.button
                     key={level.value}
                     whileHover={{ scale: 1.01 }}

@@ -164,7 +164,7 @@ export const UnifiedSettings: React.FC<UnifiedSettingsProps> = ({
                           <h4 className="font-medium text-blue-400">Daily Auto-Reset</h4>
                         </div>
                         <p className="text-sm text-blue-400/70">
-                          The app automatically resets at midnight for fresh daily tournaments.
+                          The app automatically resets at midnight for fresh daily pickup games.
                         </p>
                       </div>
                     </div>

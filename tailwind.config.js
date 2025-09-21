@@ -13,6 +13,11 @@ module.exports = {
         'team-orange': '#FF6B35',
         'team-blue': '#0084FF',
         'team-yellow': '#FFD93D',
+        'team-red': '#DC2626',
+        'team-green': '#16A34A',
+        'team-purple': '#7C3AED',
+        'team-pink': '#EC4899',
+        'team-teal': '#0D9488',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',

@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Settings, Zap } from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, Zap } from 'lucide-react';
 import { useGameStore } from '../../store/gameStore';
 import { formatTime } from '../../utils/helpers';
 import { Card } from '../shared/Card';
@@ -10,24 +10,24 @@ import { LCDDisplay } from './LCDDisplay';
 import { CircularProgress } from './CircularProgress';
 
 const GameTimerComponent: React.FC = () => {
-  // Optimized selectors to prevent unnecessary re-renders
-  const timerState = useGameStore(state => state.timerState);
+  // Get store state safely - avoid destructuring to prevent re-render issues
+  const currentMatchId = useGameStore(state => state.currentMatchId);
+  const matches = useGameStore(state => state.matches);
+  const teams = useGameStore(state => state.teams);
   const settings = useGameStore(state => state.settings);
-  const startTimer = useGameStore(state => state.startTimer);
-  const pauseTimer = useGameStore(state => state.pauseTimer);
-  const resetTimer = useGameStore(state => state.resetTimer);
-  const updateTimer = useGameStore(state => state.updateTimer);
 
-  // Only fetch match/team data when needed
-  const { currentMatch, teamA, teamB } = useGameStore(state => {
-    const currentMatch = state.currentMatchId ? state.matches.find(m => m.id === state.currentMatchId) : null;
-    const teamA = currentMatch ? state.teams.find(t => t.id === currentMatch.teamAId) : null;
-    const teamB = currentMatch ? state.teams.find(t => t.id === currentMatch.teamBId) : null;
-    return { currentMatch, teamA, teamB };
-  });
+  // Find current match data
+  const currentMatch = currentMatchId ? matches.find(m => m.id === currentMatchId) : null;
+  const teamA = currentMatch ? teams.find(t => t.id === currentMatch.teamAId) : null;
+  const teamB = currentMatch ? teams.find(t => t.id === currentMatch.teamBId) : null;
 
+  // Local timer state - completely independent of store to avoid infinite loops
+  const [timeRemaining, setTimeRemaining] = useState(() => settings.matchDuration * 60);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [showSettings, setShowSettings] = useState(false);
+
+  // Warning tracking
   const [warnings, setWarnings] = useState<{ minute: boolean; thirty: boolean; ten: boolean }>({
     minute: false,
     thirty: false,
@@ -36,36 +36,69 @@ const GameTimerComponent: React.FC = () => {
 
   const haptic = useHaptic();
   const { sounds } = useSounds();
-  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
 
+  // Timer controls
+  const startTimer = useCallback(() => {
+    setIsRunning(true);
+    setIsPaused(false);
+    haptic.success();
+    sounds.matchStart();
+  }, [haptic, sounds]);
 
-  // Create a stable reference to the store to avoid dependency issues
-  const updateTimerRef = useRef(updateTimer);
-  updateTimerRef.current = updateTimer;
+  const pauseTimer = useCallback(() => {
+    setIsRunning(false);
+    setIsPaused(true);
+    haptic.light();
+    sounds.buttonClick();
+  }, [haptic, sounds]);
 
-  // Optimized timer logic with stable reference
+  const resetTimer = useCallback(() => {
+    setIsRunning(false);
+    setIsPaused(false);
+    setTimeRemaining(settings.matchDuration * 60);
+    setWarnings({ minute: false, thirty: false, ten: false });
+    haptic.light();
+    sounds.buttonClick();
+  }, [settings.matchDuration, haptic, sounds]);
+
+  // Timer interval effect
   useEffect(() => {
-    if (timerState.isRunning) {
-      timerIntervalRef.current = setInterval(() => {
-        updateTimerRef.current();
+    if (isRunning) {
+      intervalRef.current = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev <= 0) {
+            setIsRunning(false);
+            setIsPaused(false);
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
     } else {
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-        timerIntervalRef.current = null;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     }
 
     return () => {
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-        timerIntervalRef.current = null;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
-  }, [timerState.isRunning]);
+  }, [isRunning]);
 
-  // Sound functions (defined before useEffect to avoid hoisting issues)
+  // Reset timer when match duration changes
+  useEffect(() => {
+    if (!isRunning && !isPaused) {
+      setTimeRemaining(settings.matchDuration * 60);
+    }
+  }, [settings.matchDuration, isRunning, isPaused]);
+
+  // Audio warning functions
   const playWarningSound = useCallback((type: number) => {
     if (!soundEnabled) return;
 
@@ -81,7 +114,6 @@ const GameTimerComponent: React.FC = () => {
       oscillator.connect(gainNode);
       gainNode.connect(ctx.destination);
 
-      // Different tones for different warnings
       const frequencies = {
         1: [800, 600], // 1 minute - two tones
         2: [900, 700, 500], // 30 seconds - three tones
@@ -111,8 +143,7 @@ const GameTimerComponent: React.FC = () => {
 
       const ctx = audioContextRef.current;
 
-      // Play a sequence of beeps
-      [0, 0.2, 0.4, 0.6, 0.8].forEach((delay, index) => {
+      [0, 0.2, 0.4, 0.6, 0.8].forEach((delay) => {
         const oscillator = ctx.createOscillator();
         const gainNode = ctx.createGain();
 
@@ -131,11 +162,9 @@ const GameTimerComponent: React.FC = () => {
     }
   }, [soundEnabled]);
 
-  // Warning sounds
+  // Warning sounds effect
   useEffect(() => {
-    const timeRemaining = timerState.timeRemaining;
-
-    if (soundEnabled && timerState.isRunning) {
+    if (soundEnabled && isRunning) {
       // 1 minute warning
       if (timeRemaining === 60 && !warnings.minute) {
         playWarningSound(1);
@@ -157,46 +186,19 @@ const GameTimerComponent: React.FC = () => {
         haptic.warning();
       }
     }
-  }, [timerState.timeRemaining, timerState.isRunning, soundEnabled, warnings, haptic, playWarningSound, playTimeUpSound]);
+  }, [timeRemaining, isRunning, soundEnabled, warnings, haptic, playWarningSound, playTimeUpSound]);
 
-  // Reset warnings when timer resets
+  // Reset warnings when timer resets to full time
   useEffect(() => {
-    if (timerState.timeRemaining === settings.matchDuration * 60) {
+    if (timeRemaining === settings.matchDuration * 60) {
       setWarnings({ minute: false, thirty: false, ten: false });
     }
-  }, [timerState.timeRemaining, settings.matchDuration]);
+  }, [timeRemaining, settings.matchDuration]);
 
-  // Memoized handlers to prevent unnecessary re-renders
-  const handleStart = useCallback(() => {
-    startTimer();
-    haptic.success();
-    sounds.matchStart();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startTimer, haptic]); // sounds omitted to prevent re-render loop
-
-  const handlePause = useCallback(() => {
-    pauseTimer();
-    haptic.light();
-    sounds.buttonClick();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pauseTimer, haptic]); // sounds omitted to prevent re-render loop
-
-  const handleReset = useCallback(() => {
-    resetTimer();
-    setWarnings({ minute: false, thirty: false, ten: false });
-    haptic.light();
-    sounds.buttonClick();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetTimer, haptic]); // sounds omitted to prevent re-render loop
-
-
-  // Memoized calculations to prevent re-computation on every render
-  const timeDisplay = useMemo(() => formatTime(timerState.timeRemaining), [timerState.timeRemaining]);
-
-  const progressPercentage = useMemo(() => {
-    const totalTime = settings.matchDuration * 60;
-    return ((totalTime - timerState.timeRemaining) / totalTime) * 100;
-  }, [settings.matchDuration, timerState.timeRemaining]);
+  // Calculated values
+  const timeDisplay = formatTime(timeRemaining);
+  const totalTime = settings.matchDuration * 60;
+  const progressPercentage = ((totalTime - timeRemaining) / totalTime) * 100;
 
   return (
     <div className="space-y-6">
@@ -261,21 +263,20 @@ const GameTimerComponent: React.FC = () => {
                   percentage={progressPercentage}
                   size={380}
                   strokeWidth={8}
-                  color={timerState.timeRemaining <= 10 ? '#f87171' :
-                         timerState.timeRemaining <= 30 ? '#fb923c' :
-                         timerState.timeRemaining <= 60 ? '#fbbf24' : '#00DC82'}
+                  color={timeRemaining <= 10 ? '#f87171' :
+                         timeRemaining <= 30 ? '#fb923c' :
+                         timeRemaining <= 60 ? '#fbbf24' : '#00DC82'}
                   backgroundColor="#374151"
                   pulseOnLow={true}
-                  timeRemaining={timerState.timeRemaining}
+                  timeRemaining={timeRemaining}
                 />
               </div>
 
               {/* LCD Display in center */}
               <LCDDisplay
                 time={timeDisplay}
-                status={timerState.isRunning ? 'running' :
-                        timerState.isPaused ? 'paused' : 'stopped'}
-                timeRemaining={timerState.timeRemaining}
+                status={isRunning ? 'running' : isPaused ? 'paused' : 'stopped'}
+                timeRemaining={timeRemaining}
                 size="lg"
               />
             </div>
@@ -284,28 +285,28 @@ const GameTimerComponent: React.FC = () => {
             <div className="flex items-center justify-center flex-wrap gap-4">
               <motion.div
                 className={`flex items-center space-x-2 px-4 py-2 rounded-full backdrop-blur-sm ${
-                  timerState.isRunning ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                  timerState.isPaused ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                  isRunning ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                  isPaused ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
                   'bg-gray-500/20 text-gray-400 border border-gray-500/30'
                 }`}
                 animate={{
-                  scale: timerState.isRunning ? [1, 1.05, 1] : 1
+                  scale: isRunning ? [1, 1.05, 1] : 1
                 }}
                 transition={{
                   duration: 2,
-                  repeat: timerState.isRunning ? Infinity : 0,
+                  repeat: isRunning ? Infinity : 0,
                   ease: 'easeInOut'
                 }}
               >
                 <motion.div
                   className={`w-3 h-3 rounded-full ${
-                    timerState.isRunning ? 'bg-green-400' :
-                    timerState.isPaused ? 'bg-yellow-400' :
+                    isRunning ? 'bg-green-400' :
+                    isPaused ? 'bg-yellow-400' :
                     'bg-gray-400'
                   }`}
                   animate={{
-                    opacity: timerState.isRunning ? [1, 0.3, 1] : 1,
-                    boxShadow: timerState.isRunning ? [
+                    opacity: isRunning ? [1, 0.3, 1] : 1,
+                    boxShadow: isRunning ? [
                       '0 0 10px currentColor',
                       '0 0 20px currentColor',
                       '0 0 10px currentColor'
@@ -313,19 +314,19 @@ const GameTimerComponent: React.FC = () => {
                   }}
                   transition={{
                     duration: 1,
-                    repeat: timerState.isRunning ? Infinity : 0,
+                    repeat: isRunning ? Infinity : 0,
                     ease: 'easeInOut'
                   }}
                 />
                 <span className="text-sm font-medium">
-                  {timerState.isRunning ? 'RUNNING' :
-                   timerState.isPaused ? 'PAUSED' :
+                  {isRunning ? 'RUNNING' :
+                   isPaused ? 'PAUSED' :
                    'STOPPED'}
                 </span>
               </motion.div>
 
               <AnimatePresence>
-                {timerState.timeRemaining <= 60 && timerState.isRunning && (
+                {timeRemaining <= 60 && isRunning && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{
@@ -356,7 +357,7 @@ const GameTimerComponent: React.FC = () => {
               </AnimatePresence>
 
               <AnimatePresence>
-                {timerState.timeRemaining <= 10 && timerState.isRunning && (
+                {timeRemaining <= 10 && isRunning && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{
@@ -385,7 +386,7 @@ const GameTimerComponent: React.FC = () => {
               <div className="space-y-1">
                 <p className="text-xs text-gray-400 uppercase tracking-wide">Elapsed</p>
                 <p className="text-lg font-mono font-bold text-white">
-                  {formatTime((settings.matchDuration * 60) - timerState.timeRemaining)}
+                  {formatTime(totalTime - timeRemaining)}
                 </p>
               </div>
               <div className="space-y-1">
@@ -415,22 +416,22 @@ const GameTimerComponent: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
             {/* Primary Controls */}
             <div className="flex space-x-3">
-              {!timerState.isRunning ? (
+              {!isRunning ? (
                 <motion.button
-                  onClick={handleStart}
+                  onClick={startTimer}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="flex items-center space-x-2 px-6 py-3 bg-pitch-green text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all"
+                  className="mobile-touch-target flex items-center space-x-2 px-6 py-3 bg-pitch-green text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all"
                 >
                   <Play size={20} />
                   <span>Start</span>
                 </motion.button>
               ) : (
                 <motion.button
-                  onClick={handlePause}
+                  onClick={pauseTimer}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="flex items-center space-x-2 px-6 py-3 bg-yellow-500 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all"
+                  className="mobile-touch-target flex items-center space-x-2 px-6 py-3 bg-yellow-500 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all"
                 >
                   <Pause size={20} />
                   <span>Pause</span>
@@ -438,15 +439,14 @@ const GameTimerComponent: React.FC = () => {
               )}
 
               <motion.button
-                onClick={handleReset}
+                onClick={resetTimer}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center space-x-2 px-6 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-500 transition-all"
+                className="mobile-touch-target flex items-center space-x-2 px-6 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-500 transition-all"
               >
                 <RotateCcw size={20} />
                 <span>Reset</span>
               </motion.button>
-
             </div>
 
             {/* Secondary Controls */}
@@ -455,7 +455,7 @@ const GameTimerComponent: React.FC = () => {
                 onClick={() => setSoundEnabled(!soundEnabled)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`p-3 rounded-lg transition-all ${
+                className={`mobile-touch-target p-3 rounded-lg transition-all ${
                   soundEnabled
                     ? 'bg-blue-500 text-white'
                     : 'bg-gray-600 text-gray-400 hover:text-white'
@@ -464,72 +464,10 @@ const GameTimerComponent: React.FC = () => {
               >
                 {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
               </motion.button>
-
-              <motion.button
-                onClick={() => setShowSettings(!showSettings)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`p-3 rounded-lg transition-all ${
-                  showSettings
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-600 text-gray-400 hover:text-white'
-                }`}
-                title="Timer settings"
-              >
-                <Settings size={20} />
-              </motion.button>
             </div>
           </div>
         </Card>
       </motion.div>
-
-      {/* Settings Panel - Optimized with CSS transitions */}
-      {showSettings && (
-        <div className="transition-all duration-300 ease-in-out">
-            <Card glass padding="lg">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">Timer Settings</h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Match Duration: {settings.matchDuration} minutes
-                    </label>
-                    <input
-                      type="range"
-                      min={5}
-                      max={90}
-                      step={5}
-                      value={settings.matchDuration}
-                      className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer
-                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4
-                        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-pitch-green
-                        [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-gray-300">Warning Sounds</p>
-                    <div className="space-y-1 text-xs text-gray-400">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-yellow-400 rounded-full" />
-                        <span>1 minute remaining</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-orange-400 rounded-full" />
-                        <span>30 seconds remaining</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-red-400 rounded-full" />
-                        <span>10 second countdown</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Card>
-        </div>
-      )}
 
       {/* No Match State */}
       {!currentMatch && (
@@ -550,5 +488,5 @@ const GameTimerComponent: React.FC = () => {
   );
 };
 
-// Memoized export to prevent unnecessary re-renders
+// Export with memo to prevent unnecessary re-renders
 export const GameTimer = React.memo(GameTimerComponent);

@@ -50,7 +50,7 @@ export interface Standing {
   points: number;
 }
 
-export type TeamColor = 'black' | 'white' | 'orange' | 'blue' | 'yellow' | 'no-pennies';
+export type TeamColor = 'black' | 'white' | 'orange' | 'blue' | 'yellow' | 'red' | 'green' | 'purple' | 'pink' | 'teal' | 'no-pennies';
 
 export interface GameState {
   players: Player[];
@@ -154,6 +154,36 @@ export const TEAM_COLORS: Record<TeamColor, { name: string; bg: string; text: st
     text: 'text-black',
     accent: 'border-yellow-600'
   },
+  'red': {
+    name: 'Red',
+    bg: 'bg-team-red',
+    text: 'text-white',
+    accent: 'border-red-300'
+  },
+  'green': {
+    name: 'Green',
+    bg: 'bg-team-green',
+    text: 'text-white',
+    accent: 'border-green-300'
+  },
+  'purple': {
+    name: 'Purple',
+    bg: 'bg-team-purple',
+    text: 'text-white',
+    accent: 'border-purple-300'
+  },
+  'pink': {
+    name: 'Pink',
+    bg: 'bg-team-pink',
+    text: 'text-white',
+    accent: 'border-pink-300'
+  },
+  'teal': {
+    name: 'Teal',
+    bg: 'bg-team-teal',
+    text: 'text-white',
+    accent: 'border-teal-300'
+  },
   'no-pennies': {
     name: 'No Pennies',
     bg: 'team-gradient',
@@ -162,7 +192,7 @@ export const TEAM_COLORS: Record<TeamColor, { name: string; bg: string; text: st
   }
 };
 
-export const TEAM_COLOR_OPTIONS: TeamColor[] = ['black', 'white', 'orange', 'blue', 'yellow', 'no-pennies'];
+export const TEAM_COLOR_OPTIONS: TeamColor[] = ['black', 'white', 'orange', 'blue', 'yellow', 'red', 'green', 'purple', 'pink', 'teal', 'no-pennies'];
 
 export const SKILL_LEVELS = [
   { value: 1, label: 'Beginner', description: 'New to soccer' },

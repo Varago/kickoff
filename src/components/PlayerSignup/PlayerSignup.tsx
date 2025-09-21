@@ -4,6 +4,7 @@ import { Users, UserPlus, BarChart3 } from 'lucide-react';
 import { useGameStore } from '../../store/gameStore';
 import { isPlayerCaptain } from '../../utils/helpers';
 import { Card } from '../shared/Card';
+import { KickoffLogo } from '../shared/KickoffLogo';
 import { QuickAddForm } from './QuickAddForm';
 import { PlayerCard } from './PlayerCard';
 
@@ -237,11 +238,16 @@ export const PlayerSignup: React.FC = () => {
           transition={{ delay: 0.4 }}
           className="text-center py-12"
         >
-          <div className="w-24 h-24 mx-auto mb-6 bg-surface-elevated rounded-full flex items-center justify-center">
-            <Users size={32} className="text-gray-400" />
+          <div className="w-24 h-24 mx-auto mb-6 bg-pitch-green/10 border-2 border-pitch-green/20 rounded-full flex items-center justify-center">
+            <KickoffLogo className="w-12 h-12" variant="primary" />
           </div>
-          <h3 className="text-xl font-medium text-white mb-2">No players yet</h3>
-          <p className="text-gray-400">Use the form above to add your first player</p>
+          <h3 className="text-xl font-medium text-white mb-2">Welcome to Kickoff</h3>
+          <p className="text-gray-400">Add your first player to get started with pickup games</p>
+          <div className="mt-4">
+            <span className="inline-flex items-center text-sm font-medium text-pitch-green bg-pitch-green/10 px-3 py-1 rounded-full border border-pitch-green/20">
+              Professional Pickup Game Management
+            </span>
+          </div>
         </motion.div>
       )}
     </div>

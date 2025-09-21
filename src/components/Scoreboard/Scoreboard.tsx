@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Target, Award, Medal, Crown, BarChart3 } from 'lucide-react';
+import { KickoffLogo } from '../shared/KickoffLogo';
 import { useGameStore } from '../../store/gameStore';
 import { getTeamDisplayName } from '../../utils/helpers';
 import { Card } from '../shared/Card';
@@ -21,7 +22,7 @@ export const Scoreboard: React.FC = () => {
 
   const completedMatches = matches.filter(m => m.status === 'completed');
   const totalMatches = matches.length;
-  const tournamentProgress = totalMatches > 0 ? (completedMatches.length / totalMatches) * 100 : 0;
+  const gameProgress = totalMatches > 0 ? (completedMatches.length / totalMatches) * 100 : 0;
 
   // Recalculate standings when matches change
   useEffect(() => {
@@ -31,12 +32,12 @@ export const Scoreboard: React.FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [completedMatches.length]); // calculateStandings omitted to prevent infinite loop
 
-  // Get tournament leader
+  // Get current leader
   const leader = standings.length > 0 ? standings[0] : null;
   const leaderTeam = leader ? teams.find(t => t.id === leader.teamId) : null;
 
-  // Calculate tournament statistics
-  const tournamentStats = {
+  // Calculate game statistics
+  const gameStats = {
     totalGoals: standings.reduce((sum, s) => sum + s.goalsFor, 0),
     totalMatches: completedMatches.length,
     averageGoalsPerMatch: completedMatches.length > 0
@@ -74,11 +75,11 @@ export const Scoreboard: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <h1 className="text-3xl font-bold text-white mb-2">Tournament Scoreboard</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">Game Scoreboard</h1>
         <p className="text-gray-400">Live standings and match results</p>
       </motion.div>
 
-      {/* Tournament Overview */}
+      {/* Game Overview */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -99,7 +100,7 @@ export const Scoreboard: React.FC = () => {
           <Card glass padding="md" className="text-center">
             <div className="flex items-center justify-center mb-2">
               <Target className="text-green-400 mr-2" size={20} />
-              <span className="text-xl font-bold text-white">{tournamentStats.totalGoals}</span>
+              <span className="text-xl font-bold text-white">{gameStats.totalGoals}</span>
             </div>
             <p className="text-xs text-gray-400">Total Goals</p>
           </Card>
@@ -109,7 +110,7 @@ export const Scoreboard: React.FC = () => {
           <Card glass padding="md" className="text-center">
             <div className="flex items-center justify-center mb-2">
               <BarChart3 className="text-blue-400 mr-2" size={20} />
-              <span className="text-xl font-bold text-white">{tournamentStats.averageGoalsPerMatch}</span>
+              <span className="text-xl font-bold text-white">{gameStats.averageGoalsPerMatch}</span>
             </div>
             <p className="text-xs text-gray-400">Goals/Match</p>
           </Card>
@@ -119,17 +120,17 @@ export const Scoreboard: React.FC = () => {
           <Card glass padding="md" className="text-center">
             <div className="flex items-center justify-center mb-2">
               <div className={`w-3 h-3 rounded-full mr-2 ${
-                tournamentProgress >= 100 ? 'bg-green-400' :
-                tournamentProgress >= 50 ? 'bg-yellow-400' : 'bg-blue-400'
+                gameProgress >= 100 ? 'bg-green-400' :
+                gameProgress >= 50 ? 'bg-yellow-400' : 'bg-blue-400'
               }`} />
-              <span className="text-xl font-bold text-white">{Math.round(tournamentProgress)}%</span>
+              <span className="text-xl font-bold text-white">{Math.round(gameProgress)}%</span>
             </div>
             <p className="text-xs text-gray-400">Complete</p>
           </Card>
         </motion.div>
       </motion.div>
 
-      {/* Tournament Leader */}
+      {/* Current Leader */}
       {leader && leaderTeam && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -147,7 +148,7 @@ export const Scoreboard: React.FC = () => {
                     <h3 className="text-xl font-bold text-white">{getTeamDisplayName(leaderTeam)}</h3>
                     <Trophy size={20} className="text-yellow-400" />
                   </div>
-                  <p className="text-gray-400">Tournament Leader</p>
+                  <p className="text-gray-400">Current Leader</p>
                   <div className="flex items-center space-x-4 mt-2 text-sm">
                     <span className="text-green-400">{leader.points} pts</span>
                     <span className="text-blue-400">{leader.won}W-{leader.drawn}D-{leader.lost}L</span>
@@ -227,7 +228,7 @@ export const Scoreboard: React.FC = () => {
               standings={standings}
               teams={teams}
               matches={completedMatches}
-              tournamentStats={tournamentStats}
+              gameStats={gameStats}
             />
           )}
         </motion.div>
@@ -241,11 +242,16 @@ export const Scoreboard: React.FC = () => {
           transition={{ delay: 0.4 }}
           className="text-center py-12"
         >
-          <div className="w-24 h-24 mx-auto mb-6 bg-surface-elevated rounded-full flex items-center justify-center">
-            <Trophy size={32} className="text-gray-400" />
+          <div className="w-24 h-24 mx-auto mb-6 bg-pitch-green/10 border-2 border-pitch-green/20 rounded-full flex items-center justify-center">
+            <KickoffLogo className="w-12 h-12" variant="primary" />
           </div>
           <h3 className="text-xl font-medium text-white mb-2">No results yet</h3>
           <p className="text-gray-400">Start matches to see standings and statistics</p>
+          <div className="mt-4">
+            <span className="inline-flex items-center text-sm font-medium text-pitch-green bg-pitch-green/10 px-3 py-1 rounded-full border border-pitch-green/20">
+              Powered by Kickoff
+            </span>
+          </div>
         </motion.div>
       )}
 
@@ -258,7 +264,7 @@ export const Scoreboard: React.FC = () => {
         >
           <Card glass padding="lg" className="border-t-2 border-pitch-green/30">
             <div className="text-center space-y-4">
-              <h3 className="text-lg font-semibold text-white">Tournament Highlights</h3>
+              <h3 className="text-lg font-semibold text-white">Game Highlights</h3>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Highest Scoring */}
@@ -266,32 +272,32 @@ export const Scoreboard: React.FC = () => {
                   <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-2">
                     <Target size={20} className="text-red-400" />
                   </div>
-                  <div className="text-lg font-bold text-white">{tournamentStats.highestScore}</div>
+                  <div className="text-lg font-bold text-white">{gameStats.highestScore}</div>
                   <div className="text-sm text-gray-400">Highest Score</div>
                 </div>
 
                 {/* Top Scorer */}
-                {tournamentStats.mostGoalsTeam && (
+                {gameStats.mostGoalsTeam && (
                   <div className="text-center">
                     <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-2">
                       <Award size={20} className="text-green-400" />
                     </div>
-                    <div className="text-lg font-bold text-white">{tournamentStats.mostGoalsTeam.goalsFor}</div>
+                    <div className="text-lg font-bold text-white">{gameStats.mostGoalsTeam.goalsFor}</div>
                     <div className="text-sm text-gray-400">
-                      Most Goals ({teams.find(t => t.id === tournamentStats.mostGoalsTeam?.teamId)?.name})
+                      Most Goals ({teams.find(t => t.id === gameStats.mostGoalsTeam?.teamId)?.name})
                     </div>
                   </div>
                 )}
 
                 {/* Best Defense */}
-                {tournamentStats.bestDefense && (
+                {gameStats.bestDefense && (
                   <div className="text-center">
                     <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-2">
                       <Medal size={20} className="text-blue-400" />
                     </div>
-                    <div className="text-lg font-bold text-white">{tournamentStats.bestDefense.goalsAgainst}</div>
+                    <div className="text-lg font-bold text-white">{gameStats.bestDefense.goalsAgainst}</div>
                     <div className="text-sm text-gray-400">
-                      Best Defense ({teams.find(t => t.id === tournamentStats.bestDefense?.teamId)?.name})
+                      Best Defense ({teams.find(t => t.id === gameStats.bestDefense?.teamId)?.name})
                     </div>
                   </div>
                 )}

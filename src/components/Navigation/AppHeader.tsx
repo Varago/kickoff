@@ -68,7 +68,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       case 'schedule':
         return 'Match Schedule';
       case 'scoreboard':
-        return 'Tournament Results';
+        return 'Game Results';
       default:
         return 'Kickoff';
     }
@@ -124,7 +124,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             <div className="min-w-0 flex-1">
               <div className="flex items-center space-x-1 sm:space-x-2">
                 <h1 className="text-base sm:text-lg font-bold text-white truncate">{getTabTitle()}</h1>
-                <span className="hidden sm:inline-block text-xs font-medium text-pitch-green bg-pitch-green/10 px-2 py-0.5 rounded-full border border-pitch-green/20 flex-shrink-0">
+                <span className="text-xs font-medium text-pitch-green bg-pitch-green/10 px-2 py-0.5 rounded-full border border-pitch-green/20 flex-shrink-0">
                   Kickoff
                 </span>
               </div>
@@ -183,7 +183,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             type="text"
             value={tournamentName}
             onChange={(e) => setTournamentName(e.target.value)}
-            placeholder="Tournament name..."
+            placeholder="Game day name..."
             className="w-full bg-transparent text-lg sm:text-xl font-bold text-white placeholder-gray-500 border-none outline-none focus:placeholder-gray-400 transition-colors"
             maxLength={50}
           />

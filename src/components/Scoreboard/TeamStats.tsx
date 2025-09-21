@@ -9,7 +9,7 @@ interface TeamStatsProps {
   standings: Standing[];
   teams: Team[];
   matches: Match[];
-  tournamentStats: {
+  gameStats: {
     totalGoals: number;
     totalMatches: number;
     averageGoalsPerMatch: string;
@@ -23,7 +23,7 @@ export const TeamStats: React.FC<TeamStatsProps> = ({
   standings,
   teams,
   matches,
-  tournamentStats
+  gameStats
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<'attack' | 'defense' | 'efficiency' | 'overview'>('overview');
 
@@ -34,6 +34,11 @@ export const TeamStats: React.FC<TeamStatsProps> = ({
       orange: 'bg-orange-500 text-white',
       blue: 'bg-blue-500 text-white',
       yellow: 'bg-yellow-500 text-black',
+      red: 'bg-red-600 text-white',
+      green: 'bg-green-600 text-white',
+      purple: 'bg-purple-600 text-white',
+      pink: 'bg-pink-600 text-white',
+      teal: 'bg-teal-600 text-white',
       'no-pennies': 'bg-gradient-to-r from-green-400 to-blue-500 text-white'
     };
     return colorMap[team.color] || 'bg-gray-500 text-white';
@@ -163,13 +168,13 @@ export const TeamStats: React.FC<TeamStatsProps> = ({
                       <Target size={20} className="text-green-400" />
                     </div>
                     <h4 className="font-semibold text-white">Top Scorer</h4>
-                    {tournamentStats.mostGoalsTeam && (
+                    {gameStats.mostGoalsTeam && (
                       <div>
                         <div className="text-2xl font-bold text-green-400">
-                          {tournamentStats.mostGoalsTeam.goalsFor}
+                          {gameStats.mostGoalsTeam.goalsFor}
                         </div>
                         <div className="text-sm text-gray-400">
-                          {teams.find(t => t.id === tournamentStats.mostGoalsTeam?.teamId)?.name}
+                          {teams.find(t => t.id === gameStats.mostGoalsTeam?.teamId)?.name}
                         </div>
                       </div>
                     )}
@@ -183,13 +188,13 @@ export const TeamStats: React.FC<TeamStatsProps> = ({
                       <Shield size={20} className="text-blue-400" />
                     </div>
                     <h4 className="font-semibold text-white">Best Defense</h4>
-                    {tournamentStats.bestDefense && (
+                    {gameStats.bestDefense && (
                       <div>
                         <div className="text-2xl font-bold text-blue-400">
-                          {tournamentStats.bestDefense.goalsAgainst}
+                          {gameStats.bestDefense.goalsAgainst}
                         </div>
                         <div className="text-sm text-gray-400">
-                          {teams.find(t => t.id === tournamentStats.bestDefense?.teamId)?.name}
+                          {teams.find(t => t.id === gameStats.bestDefense?.teamId)?.name}
                         </div>
                       </div>
                     )}

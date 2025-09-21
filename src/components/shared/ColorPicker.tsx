@@ -30,6 +30,11 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
       orange: { name: 'Orange', bg: 'bg-orange-500', border: 'border-orange-400' },
       blue: { name: 'Blue', bg: 'bg-blue-500', border: 'border-blue-400' },
       yellow: { name: 'Yellow', bg: 'bg-yellow-500', border: 'border-yellow-400' },
+      red: { name: 'Red', bg: 'bg-red-600', border: 'border-red-400' },
+      green: { name: 'Green', bg: 'bg-green-600', border: 'border-green-400' },
+      purple: { name: 'Purple', bg: 'bg-purple-600', border: 'border-purple-400' },
+      pink: { name: 'Pink', bg: 'bg-pink-600', border: 'border-pink-400' },
+      teal: { name: 'Teal', bg: 'bg-teal-600', border: 'border-teal-400' },
       'no-pennies': { name: 'No Pennies', bg: 'bg-gradient-to-r from-green-400 to-blue-500', border: 'border-green-400' }
     };
     return colorMapping[color] || colorMapping['black'];

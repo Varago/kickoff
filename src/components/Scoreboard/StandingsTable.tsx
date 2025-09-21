@@ -55,6 +55,11 @@ export const StandingsTable: React.FC<StandingsTableProps> = ({
       orange: 'bg-orange-500 text-white',
       blue: 'bg-blue-500 text-white',
       yellow: 'bg-yellow-500 text-black',
+      red: 'bg-red-600 text-white',
+      green: 'bg-green-600 text-white',
+      purple: 'bg-purple-600 text-white',
+      pink: 'bg-pink-600 text-white',
+      teal: 'bg-teal-600 text-white',
       'no-pennies': 'bg-gradient-to-r from-green-400 to-blue-500 text-white'
     };
     return colorMap[team.color] || 'bg-gray-500 text-white';

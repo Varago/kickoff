@@ -83,7 +83,7 @@ export const MatchScheduler: React.FC = () => {
         className="text-center"
       >
         <h1 className="text-3xl font-bold text-white mb-2">Match Scheduler</h1>
-        <p className="text-gray-400">Organize and manage your tournament schedule</p>
+        <p className="text-gray-400">Organize and manage your game schedule</p>
       </motion.div>
 
       {/* Stats Overview */}
@@ -147,7 +147,7 @@ export const MatchScheduler: React.FC = () => {
           <Card glass padding="md">
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-300">Tournament Progress</span>
+                <span className="text-gray-300">Game Progress</span>
                 <span className="text-white font-medium">{completedMatches} / {totalMatches} matches</span>
               </div>
               <div className="h-3 bg-gray-700 rounded-full overflow-hidden">

@@ -177,7 +177,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
               onClick={() => setShowEditModal(true)}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg"
+              className="mobile-touch-target md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200 p-3 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg"
               title="Edit player"
             >
               <Edit size={16} />
@@ -189,9 +189,9 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
                 onClick={onToggleCaptain}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className={`opacity-0 group-hover:opacity-100 transition-all duration-200 p-2 rounded-lg ${
+                className={`mobile-touch-target md:opacity-0 md:group-hover:opacity-100 transition-all duration-200 p-3 rounded-lg ${
                   isCaptain
-                    ? 'text-yellow-400 bg-yellow-500/10 opacity-100'
+                    ? 'text-yellow-400 bg-yellow-500/10 md:opacity-100'
                     : 'text-gray-400 hover:text-yellow-400 hover:bg-yellow-500/10'
                 }`}
                 title={isCaptain ? 'Remove captain' : 'Make captain'}
@@ -205,7 +205,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
               onClick={onRemove}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg"
+              className="mobile-touch-target md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200 p-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg"
             >
               <Trash2 size={16} />
             </motion.button>

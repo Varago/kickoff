@@ -93,8 +93,8 @@ export const ResetConfirmationModal: React.FC<ResetConfirmationModalProps> = ({
                     <li>• All player registrations</li>
                     <li>• Team formations and assignments</li>
                     <li>• Match schedules and scores</li>
-                    <li>• Tournament standings</li>
-                    <li>• Tournament name and settings</li>
+                    <li>• Game standings</li>
+                    <li>• Game session name and settings</li>
                   </ul>
                 </div>
 

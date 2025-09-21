@@ -40,14 +40,14 @@ export const ScheduleSettings: React.FC<ScheduleSettingsProps> = ({
     }
 
     if (localSettings.matchDuration > 20 && teams.length > 4) {
-      warnings.push('Long matches with many teams may extend tournament duration significantly');
+      warnings.push('Long matches with many teams may extend game session duration significantly');
     }
 
     const estimatedTotalTime = (teams.length > 1 ?
       Math.floor((localSettings.gamesPerTeam * teams.length) / 2) : 0) * localSettings.matchDuration;
 
     if (estimatedTotalTime > 180) {
-      warnings.push('Tournament may last over 3 hours');
+      warnings.push('Game session may last over 3 hours');
     }
 
     if (localSettings.gamesPerTeam < 2 && teams.length > 2) {
@@ -103,7 +103,7 @@ export const ScheduleSettings: React.FC<ScheduleSettingsProps> = ({
           </div>
           <div>
             <h3 className="font-semibold text-white">Schedule Configuration</h3>
-            <p className="text-sm text-gray-400">Customize tournament format and timing</p>
+            <p className="text-sm text-gray-400">Customize game format and timing</p>
           </div>
         </div>
 
@@ -156,11 +156,11 @@ export const ScheduleSettings: React.FC<ScheduleSettingsProps> = ({
 
         {/* Settings Controls */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Tournament Format */}
+          {/* Game Format */}
           <div className="space-y-4">
             <h4 className="font-medium text-white flex items-center space-x-2">
               <Target size={16} />
-              <span>Tournament Format</span>
+              <span>Game Format</span>
             </h4>
 
             <div className="space-y-4">

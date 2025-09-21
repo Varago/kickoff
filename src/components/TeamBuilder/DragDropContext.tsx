@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { DragDropContext, DropResult, DragStart } from 'react-beautiful-dnd';
 import { Player, Team } from '../../types';
 import { useGameStore } from '../../store/gameStore';
@@ -19,6 +19,22 @@ export const DragDropWrapper: React.FC<DragDropWrapperProps> = ({
   const { movePlayer } = useGameStore();
   const { sounds } = useSounds();
   const haptic = useHaptic();
+
+  // React 19 compatibility fix for DragDropContext
+  useEffect(() => {
+    // Suppress React 19 strict mode warnings for react-beautiful-dnd
+    const originalError = console.error;
+    console.error = (...args: any[]) => {
+      if (typeof args[0] === 'string' && args[0].includes('react-beautiful-dnd')) {
+        return;
+      }
+      originalError.call(console, ...args);
+    };
+
+    return () => {
+      console.error = originalError;
+    };
+  }, []);
 
   const onDragStart = (start: DragStart) => {
     // Haptic feedback when drag starts

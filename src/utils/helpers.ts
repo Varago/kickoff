@@ -95,6 +95,11 @@ export const getTeamColorClass = (team: Team): string => {
     orange: 'bg-team-orange text-white',
     blue: 'bg-team-blue text-white',
     yellow: 'bg-team-yellow text-black',
+    red: 'bg-team-red text-white',
+    green: 'bg-team-green text-white',
+    purple: 'bg-team-purple text-white',
+    pink: 'bg-team-pink text-white',
+    teal: 'bg-team-teal text-white',
     'no-pennies': 'team-gradient text-white'
   };
   return colorMap[team.color] || 'bg-gray-500 text-white';

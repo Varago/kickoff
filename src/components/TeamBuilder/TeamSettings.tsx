@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Settings, Users, Clock } from 'lucide-react';
 import { GameSettings } from '../../types';
 import { Card } from '../shared/Card';
-import { BoxControl } from '../shared/BoxControl';
+import { CompactControl } from '../shared/CompactControl';
 
 interface TeamSettingsProps {
   settings: GameSettings;
@@ -53,7 +53,7 @@ export const TeamSettings: React.FC<TeamSettingsProps> = ({
 
   return (
     <Card glass padding="lg">
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
@@ -66,22 +66,22 @@ export const TeamSettings: React.FC<TeamSettingsProps> = ({
         </div>
 
 
-        {/* Configuration Summary */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-surface-elevated rounded-lg p-3 text-center">
-            <div className="text-xl font-bold text-white">{localSettings.teamsCount}</div>
+        {/* Configuration Summary - Compact Mobile */}
+        <div className="grid grid-cols-4 gap-2 sm:gap-3">
+          <div className="bg-surface-elevated rounded-lg p-2 sm:p-3 text-center">
+            <div className="text-lg sm:text-xl font-bold text-white">{localSettings.teamsCount}</div>
             <div className="text-xs text-gray-400">Teams</div>
           </div>
-          <div className="bg-surface-elevated rounded-lg p-3 text-center">
-            <div className="text-xl font-bold text-white">{localSettings.playersPerTeam}</div>
+          <div className="bg-surface-elevated rounded-lg p-2 sm:p-3 text-center">
+            <div className="text-lg sm:text-xl font-bold text-white">{localSettings.playersPerTeam}</div>
             <div className="text-xs text-gray-400">Players/Team</div>
           </div>
-          <div className="bg-surface-elevated rounded-lg p-3 text-center">
-            <div className="text-xl font-bold text-white">{totalSlotsNeeded}</div>
+          <div className="bg-surface-elevated rounded-lg p-2 sm:p-3 text-center">
+            <div className="text-lg sm:text-xl font-bold text-white">{totalSlotsNeeded}</div>
             <div className="text-xs text-gray-400">Total Slots</div>
           </div>
-          <div className="bg-surface-elevated rounded-lg p-3 text-center">
-            <div className="text-xl font-bold text-green-400">
+          <div className="bg-surface-elevated rounded-lg p-2 sm:p-3 text-center">
+            <div className="text-lg sm:text-xl font-bold text-green-400">
               {Math.min(utilizationRate, 100)}%
             </div>
             <div className="text-xs text-gray-400">Utilization</div>
@@ -123,45 +123,47 @@ export const TeamSettings: React.FC<TeamSettingsProps> = ({
           </motion.div>
         )}
 
-        {/* Settings Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Settings Controls - Compact Mobile */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {/* Team Configuration */}
-          <div className="space-y-4">
-            <h4 className="font-medium text-white flex items-center space-x-2">
+          <div className="space-y-3 sm:space-y-4">
+            <h4 className="font-medium text-white flex items-center space-x-2 text-sm sm:text-base">
               <Users size={16} />
               <span>Team Structure</span>
             </h4>
 
-            <div className="space-y-4">
-              <BoxControl
+            <div className="space-y-3 sm:space-y-4">
+              <CompactControl
                 label="Number of Teams"
                 value={localSettings.teamsCount}
                 min={2}
                 max={8}
                 onChange={(value) => handleSettingChange('teamsCount', value)}
                 description={`${localSettings.teamsCount} teams competing`}
+                size="sm"
               />
 
-              <BoxControl
+              <CompactControl
                 label="Players per Team"
                 value={localSettings.playersPerTeam}
                 min={1}
                 max={11}
                 onChange={(value) => handleSettingChange('playersPerTeam', value)}
                 description={`${localSettings.playersPerTeam}v${localSettings.playersPerTeam} format`}
+                size="sm"
               />
             </div>
           </div>
 
           {/* Match Configuration */}
-          <div className="space-y-4">
-            <h4 className="font-medium text-white flex items-center space-x-2">
+          <div className="space-y-3 sm:space-y-4">
+            <h4 className="font-medium text-white flex items-center space-x-2 text-sm sm:text-base">
               <Clock size={16} />
               <span>Match Settings</span>
             </h4>
 
-            <div className="space-y-4">
-              <BoxControl
+            <div className="space-y-3 sm:space-y-4">
+              <CompactControl
                 label="Match Duration"
                 value={localSettings.matchDuration}
                 min={5}
@@ -170,15 +172,17 @@ export const TeamSettings: React.FC<TeamSettingsProps> = ({
                 onChange={(value) => handleSettingChange('matchDuration', value)}
                 description={`${localSettings.matchDuration} minutes per match`}
                 unit="min"
+                size="sm"
               />
 
-              <BoxControl
+              <CompactControl
                 label="Games per Team"
                 value={localSettings.gamesPerTeam}
                 min={1}
                 max={10}
                 onChange={(value) => handleSettingChange('gamesPerTeam', value)}
                 description={`Each team plays ${localSettings.gamesPerTeam} match${localSettings.gamesPerTeam !== 1 ? 'es' : ''}`}
+                size="sm"
               />
             </div>
           </div>
@@ -205,4 +209,3 @@ export const TeamSettings: React.FC<TeamSettingsProps> = ({
     </Card>
   );
 };
-

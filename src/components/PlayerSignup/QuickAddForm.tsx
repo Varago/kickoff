@@ -6,6 +6,8 @@ import { isValidPlayerName } from '../../utils/helpers';
 import { Card } from '../shared/Card';
 import { useHaptic } from '../../hooks/useHaptic';
 import { useSounds } from '../../hooks/useSoundSystem';
+import { useKeyboardHandler } from '../../hooks/useKeyboardHandler';
+import { SKILL_LEVELS } from '../../types';
 
 interface QuickAddFormProps {
   onPlayerAdded?: () => void;
@@ -24,6 +26,7 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
   const inputRef = useRef<HTMLInputElement>(null);
   const haptic = useHaptic();
   const { sounds } = useSounds();
+  const { isKeyboardVisible } = useKeyboardHandler();
 
   // Auto-focus input on mount and after successful add
   useEffect(() => {
@@ -88,17 +91,28 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
     setNameError('');
   };
 
-  const skillPresets = [
-    { level: 1, label: 'Beginner', color: 'bg-orange-500' },
-    { level: 2, label: 'Casual', color: 'bg-yellow-500' },
-    { level: 3, label: 'Skilled', color: 'bg-blue-500' },
-    { level: 4, label: 'Expert', color: 'bg-green-500' }
-  ];
+  // Use proper skill levels from types
+  const skillPresets = SKILL_LEVELS.map(skill => ({
+    level: skill.value,
+    label: skill.label,
+    description: skill.description,
+    color: skill.value === 1 ? 'bg-orange-500' :
+           skill.value === 2 ? 'bg-yellow-500' :
+           skill.value === 3 ? 'bg-blue-500' :
+           skill.value === 4 ? 'bg-purple-500' :
+           'bg-green-500'
+  }));
 
   const activePlayers = players.filter(p => !p.isWaitlist);
 
   return (
-    <Card glass padding="lg" className="sticky top-4 z-20 border-pitch-green/20">
+    <Card
+      glass
+      padding="lg"
+      className={`sticky top-4 z-20 border-pitch-green/20 mobile-form-container ${
+        isKeyboardVisible ? 'keyboard-active' : ''
+      }`}
+    >
       <div className="space-y-4">
         {/* Header with Quick Mode Toggle */}
         <div className="flex items-center justify-between">
@@ -114,38 +128,40 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
             </div>
           </div>
 
-          {/* Mode Toggles */}
-          <div className="flex space-x-2">
-            {/* Waitlist Toggle */}
-            <button
-              onClick={() => setAddToWaitlist(!addToWaitlist)}
-              className={`
-                flex items-center space-x-2 px-3 py-2 rounded-lg transition-all
-                ${addToWaitlist
-                  ? 'bg-yellow-500 text-white shadow-lg shadow-yellow-500/25'
-                  : 'bg-surface-elevated text-gray-400 hover:text-white'
-                }
-              `}
-            >
-              <Clock size={16} />
-              <span className="text-xs font-medium">Waitlist</span>
-            </button>
+          {/* Mode Toggles - Hide on mobile when keyboard is visible */}
+          {!isKeyboardVisible && (
+            <div className="flex space-x-2">
+              {/* Waitlist Toggle */}
+              <button
+                onClick={() => setAddToWaitlist(!addToWaitlist)}
+                className={`
+                  mobile-touch-target flex items-center space-x-2 px-3 py-2 rounded-lg transition-all
+                  ${addToWaitlist
+                    ? 'bg-yellow-500 text-white shadow-lg shadow-yellow-500/25'
+                    : 'bg-surface-elevated text-gray-400 hover:text-white'
+                  }
+                `}
+              >
+                <Clock size={16} />
+                <span className="text-xs font-medium">Waitlist</span>
+              </button>
 
-            {/* Quick Mode Toggle */}
-            <button
-              onClick={() => setIsQuickMode(!isQuickMode)}
-              className={`
-                flex items-center space-x-2 px-3 py-2 rounded-lg transition-all
-                ${isQuickMode
-                  ? 'bg-pitch-green text-white shadow-lg shadow-pitch-green/25'
-                  : 'bg-surface-elevated text-gray-400 hover:text-white'
-                }
-              `}
-            >
-              <Zap size={16} />
-              <span className="text-xs font-medium">Quick</span>
-            </button>
-          </div>
+              {/* Quick Mode Toggle */}
+              <button
+                onClick={() => setIsQuickMode(!isQuickMode)}
+                className={`
+                  mobile-touch-target flex items-center space-x-2 px-3 py-2 rounded-lg transition-all
+                  ${isQuickMode
+                    ? 'bg-pitch-green text-white shadow-lg shadow-pitch-green/25'
+                    : 'bg-surface-elevated text-gray-400 hover:text-white'
+                  }
+                `}
+              >
+                <Zap size={16} />
+                <span className="text-xs font-medium">Quick</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Main Input Form */}
@@ -165,7 +181,7 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
                     : `Enter player name${addToWaitlist ? ' (waitlist)' : ''}`
                 }
                 className={`
-                  w-full px-4 py-3 bg-surface-dark border rounded-lg
+                  mobile-input w-full px-4 py-3 bg-surface-dark border rounded-lg
                   text-white placeholder-gray-400 text-lg
                   focus:outline-none focus:ring-2 focus:ring-pitch-green focus:border-pitch-green
                   transition-all duration-200
@@ -197,7 +213,7 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className={`
-                px-6 py-3 rounded-lg font-medium transition-all duration-200
+                mobile-touch-target px-6 py-3 rounded-lg font-medium transition-all duration-200
                 flex items-center space-x-2 min-w-[100px] justify-center
                 ${playerName.trim()
                   ? addToWaitlist
@@ -212,7 +228,7 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
             </motion.button>
           </div>
 
-          {/* Skill Level Selector */}
+          {/* Mobile-Optimized Skill Level Selector */}
           {!isQuickMode && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -220,7 +236,7 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
                   Skill Level: {skillPresets.find(s => s.level === selectedSkill)?.label || 'Custom'}
                 </label>
                 <div className="flex items-center space-x-1">
-                  {Array.from({ length: 4 }, (_, i) => (
+                  {Array.from({ length: 5 }, (_, i) => (
                     <div
                       key={i}
                       className={`w-2.5 h-2.5 rounded-full ${
@@ -231,31 +247,51 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
                 </div>
               </div>
 
-              {/* Quick Skill Presets */}
-              <div className="grid grid-cols-4 gap-2">
-                {skillPresets.map((preset) => (
-                  <button
-                    key={preset.level}
-                    onClick={() => setSelectedSkill(preset.level)}
-                    className={`
-                      px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200
-                      flex items-center space-x-2
-                      ${selectedSkill === preset.level
-                        ? 'bg-pitch-green text-white shadow-lg'
-                        : 'bg-surface-elevated text-gray-400 hover:text-white hover:bg-gray-600'
-                      }
-                    `}
-                  >
-                    <div className={`w-2 h-2 rounded-full ${preset.color}`} />
-                    <span>{preset.label}</span>
-                  </button>
-                ))}
-              </div>
+              {/* Mobile Skill Picker */}
+              {isKeyboardVisible ? (
+                // Compact horizontal selector when keyboard is visible
+                <div className="skill-picker-mobile">
+                  {skillPresets.map((preset) => (
+                    <button
+                      key={preset.level}
+                      onClick={() => setSelectedSkill(preset.level)}
+                      className={`skill-option-mobile ${
+                        selectedSkill === preset.level ? 'selected' : ''
+                      }`}
+                    >
+                      <div className="skill-level">{preset.level}</div>
+                      <div className="skill-label">{preset.label}</div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                // Full grid layout when keyboard is hidden
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                  {skillPresets.map((preset) => (
+                    <button
+                      key={preset.level}
+                      onClick={() => setSelectedSkill(preset.level)}
+                      className={`
+                        mobile-touch-target px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200
+                        flex flex-col items-center justify-center space-y-1 min-h-[60px]
+                        ${selectedSkill === preset.level
+                          ? 'bg-pitch-green text-white shadow-lg border-2 border-pitch-green'
+                          : 'bg-surface-elevated text-gray-400 hover:text-white hover:bg-gray-600 border-2 border-transparent'
+                        }
+                      `}
+                    >
+                      <div className={`w-3 h-3 rounded-full ${preset.color}`} />
+                      <span className="font-semibold">{preset.level}</span>
+                      <span className="text-xs">{preset.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
-          {/* Mode Info */}
-          {(isQuickMode || addToWaitlist) && (
+          {/* Mode Info - Hide when keyboard is visible for space */}
+          {(isQuickMode || addToWaitlist) && !isKeyboardVisible && (
             <div className={`border rounded-lg p-3 ${
               addToWaitlist
                 ? 'bg-yellow-500/10 border-yellow-500/20'
@@ -296,13 +332,41 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
           )}
         </AnimatePresence>
 
-        {/* Keyboard Shortcuts Hint */}
-        <div className="text-center">
-          <p className="text-xs text-gray-500">
-            Press <kbd className="px-1.5 py-0.5 bg-gray-600 rounded text-xs">Enter</kbd> to add •
-            <kbd className="px-1.5 py-0.5 bg-gray-600 rounded text-xs ml-1">Tab</kbd> to skill level
-          </p>
-        </div>
+        {/* Keyboard Shortcuts Hint - Hide when keyboard is visible */}
+        {!isKeyboardVisible && (
+          <div className="text-center">
+            <p className="text-xs text-gray-500">
+              Press <kbd className="px-1.5 py-0.5 bg-gray-600 rounded text-xs">Enter</kbd> to add •
+              <kbd className="px-1.5 py-0.5 bg-gray-600 rounded text-xs ml-1">Tab</kbd> to skill level
+            </p>
+          </div>
+        )}
+
+        {/* Keyboard Toolbar for mobile */}
+        {isKeyboardVisible && (
+          <div className="keyboard-toolbar visible">
+            <div className="keyboard-toolbar-content">
+              <div className="text-sm text-gray-300">
+                Skill: {skillPresets.find(s => s.level === selectedSkill)?.label}
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={handleAddPlayer}
+                  disabled={!playerName.trim()}
+                  className={`
+                    px-4 py-2 rounded-lg text-sm font-medium transition-all
+                    ${playerName.trim()
+                      ? 'bg-pitch-green text-white'
+                      : 'bg-gray-600 text-gray-400'
+                    }
+                  `}
+                >
+                  Add Player
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Card>
   );

@@ -59,6 +59,11 @@ export const PlayerDragItem: React.FC<PlayerDragItemProps> = ({
             {/* Player Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2">
+                {/* Registration Order Number */}
+                <span className="w-6 h-6 bg-gray-600/50 text-gray-300 text-xs rounded-full flex items-center justify-center flex-shrink-0">
+                  {player.signupOrder}
+                </span>
+
                 <h4 className={`font-medium text-white ${isCompact ? 'text-xs' : 'text-sm'}`} title={player.name}>
                   {isCompact ? player.name.split(' ')[0] : player.name}
                 </h4>

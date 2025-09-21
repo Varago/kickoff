@@ -50,6 +50,7 @@ interface GameStore extends GameState {
 
   // Utility actions
   resetAll: () => void;
+  resetAllSafe: () => { success: boolean; reason?: string };
   resetApp: () => void;
   checkDailyAutoReset: () => boolean;
   exportData: () => string;
@@ -143,7 +144,7 @@ export const useGameStore = create<GameStore>()(
       currentMatchId: null,
       currentMatch: null,
       standings: [],
-      tournamentName: 'Pickup Tournament',
+      tournamentName: 'Pickup Games',
       lastResetDate: getCurrentDateString(),
       timerState: {
         timeRemaining: DEFAULT_SETTINGS.matchDuration * 60, // Convert to seconds
@@ -670,6 +671,42 @@ export const useGameStore = create<GameStore>()(
         });
       },
 
+      // Safe reset with game day protection
+      resetAllSafe: () => {
+        const state = get();
+
+        // Check if there's an active match in progress
+        const hasActiveMatch = state.matches.some(match => match.status === 'in-progress');
+        const timerRunning = state.timerState?.isRunning;
+
+        if (hasActiveMatch || timerRunning) {
+          // Return false to indicate reset was blocked
+          return {
+            success: false,
+            reason: hasActiveMatch
+              ? 'Cannot reset during active match. Complete or cancel the current match first.'
+              : 'Cannot reset while timer is running. Stop the timer first.'
+          };
+        }
+
+        // Safe to reset
+        set({
+          players: [],
+          teams: [],
+          matches: [],
+          currentMatchId: null,
+          standings: [],
+          lastResetDate: getCurrentDateString(),
+          timerState: {
+            timeRemaining: state.settings.matchDuration * 60,
+            isRunning: false,
+            isPaused: false
+          }
+        });
+
+        return { success: true };
+      },
+
       checkDailyAutoReset: () => {
         const state = get();
         const currentDate = getCurrentDateString();
@@ -686,7 +723,7 @@ export const useGameStore = create<GameStore>()(
             currentMatchId: null,
             currentMatch: null,
             standings: [],
-            tournamentName: 'Pickup Tournament',
+            tournamentName: 'Pickup Games',
             lastResetDate: currentDate,
             timerState: {
               timeRemaining: state.settings.matchDuration * 60,
@@ -711,7 +748,7 @@ export const useGameStore = create<GameStore>()(
           currentMatch: null,
           standings: [],
           settings: DEFAULT_SETTINGS,
-          tournamentName: 'Pickup Tournament',
+          tournamentName: 'Pickup Games',
           lastResetDate: getCurrentDateString(),
           timerState: {
             timeRemaining: DEFAULT_SETTINGS.matchDuration * 60,

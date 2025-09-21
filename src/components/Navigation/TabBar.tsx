@@ -102,14 +102,14 @@ export const TabBar: React.FC<TabBarProps> = ({
                 onClick={() => !accessibility.disabled && onTabChange(tab.id)}
                 disabled={accessibility.disabled}
                 className={`
-                  relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-200
+                  mobile-touch-target relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-200
                   ${isActive
                     ? 'bg-pitch-green/20 text-white'
                     : accessibility.disabled
                       ? 'text-gray-600 cursor-not-allowed'
                       : 'text-gray-400 hover:text-white hover:bg-gray-700/30'
                   }
-                  min-w-[60px] flex-1
+                  min-w-[60px] flex-1 min-h-[48px]
                 `}
                 whileTap={!accessibility.disabled ? { scale: 0.95 } : {}}
                 whileHover={!accessibility.disabled ? { scale: 1.05 } : {}}
