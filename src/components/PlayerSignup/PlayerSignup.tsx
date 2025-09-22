@@ -9,7 +9,7 @@ import { QuickAddForm } from './QuickAddForm';
 import { PlayerCard } from './PlayerCard';
 
 export const PlayerSignup: React.FC = () => {
-  const { players, teams, removePlayer, togglePlayerCaptain } = useGameStore();
+  const { players, teams, settings, removePlayer, togglePlayerCaptain, assignPlayerToTeam } = useGameStore();
   const [recentlyAddedIds, setRecentlyAddedIds] = useState<Set<string>>(new Set());
 
   const activePlayers = players.filter(p => !p.isWaitlist);
@@ -67,7 +67,7 @@ export const PlayerSignup: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 w-full">
+    <div className="space-y-4 sm:space-y-6 w-full mobile-scroll">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -175,6 +175,10 @@ export const PlayerSignup: React.FC = () => {
                       isCaptain={isPlayerCaptain(player.id, teams, players)}
                       isRecent={recentlyAddedIds.has(player.id)}
                       showCaptainControls={true}
+                      teams={teams}
+                      maxPlayersPerTeam={settings.playersPerTeam}
+                      onAssignToTeam={assignPlayerToTeam}
+                      showTeamAssignment={teams.length > 0}
                     />
                   </motion.div>
                 ))}
@@ -221,6 +225,10 @@ export const PlayerSignup: React.FC = () => {
                       isRecent={recentlyAddedIds.has(player.id)}
                       showCaptainControls={true}
                       isWaitlist={true}
+                      teams={teams}
+                      maxPlayersPerTeam={settings.playersPerTeam}
+                      onAssignToTeam={assignPlayerToTeam}
+                      showTeamAssignment={teams.length > 0}
                     />
                   </motion.div>
                 ))}

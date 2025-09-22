@@ -1,10 +1,11 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trash2, Clock, Crown, Edit } from 'lucide-react';
-import { Player } from '../../types';
+import { Trash2, Clock, Crown, Edit, Users } from 'lucide-react';
+import { Player, Team } from '../../types';
 import { getSkillLevelLabel } from '../../utils/helpers';
 import { Card } from '../shared/Card';
 import { PlayerEditModal } from '../shared/PlayerEditModal';
+import { TeamSelectionModal } from '../shared/TeamSelectionModal';
 
 interface PlayerCardProps {
   player: Player;
@@ -16,6 +17,10 @@ interface PlayerCardProps {
   onToggleCaptain?: () => void;
   showCaptainControls?: boolean;
   isWaitlist?: boolean;
+  teams?: Team[];
+  maxPlayersPerTeam?: number;
+  onAssignToTeam?: (playerId: string, teamId: string | null) => void;
+  showTeamAssignment?: boolean;
 }
 
 export const PlayerCard: React.FC<PlayerCardProps> = ({
@@ -27,9 +32,14 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
   isCaptain = false,
   onToggleCaptain,
   showCaptainControls = false,
-  isWaitlist = false
+  isWaitlist = false,
+  teams = [],
+  maxPlayersPerTeam = 4,
+  onAssignToTeam,
+  showTeamAssignment = false
 }) => {
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showTeamModal, setShowTeamModal] = useState(false);
   const skillColors = {
     1: 'bg-orange-500',
     2: 'bg-yellow-500',
@@ -172,6 +182,19 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-1">
+            {/* Team Assignment Button */}
+            {showTeamAssignment && onAssignToTeam && teams.length > 0 && (
+              <motion.button
+                onClick={() => setShowTeamModal(true)}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="mobile-touch-target md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200 p-3 text-pitch-green hover:text-green-300 hover:bg-pitch-green/10 rounded-lg"
+                title="Assign to team"
+              >
+                <Users size={16} />
+              </motion.button>
+            )}
+
             {/* Edit Button */}
             <motion.button
               onClick={() => setShowEditModal(true)}
@@ -224,6 +247,18 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
         onClose={() => setShowEditModal(false)}
         player={player}
       />
+
+      {/* Team Selection Modal */}
+      {showTeamAssignment && onAssignToTeam && (
+        <TeamSelectionModal
+          isOpen={showTeamModal}
+          onClose={() => setShowTeamModal(false)}
+          onSelectTeam={(teamId) => onAssignToTeam(player.id, teamId)}
+          teams={teams}
+          player={player}
+          maxPlayersPerTeam={maxPlayersPerTeam}
+        />
+      )}
     </motion.div>
   );
 };

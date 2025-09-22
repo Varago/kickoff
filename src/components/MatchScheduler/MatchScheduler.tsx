@@ -75,7 +75,7 @@ export const MatchScheduler: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6 mobile-scroll">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

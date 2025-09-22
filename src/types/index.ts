@@ -198,8 +198,7 @@ export const SKILL_LEVELS = [
   { value: 1, label: 'Beginner', description: 'New to soccer' },
   { value: 2, label: 'Casual', description: 'Plays occasionally' },
   { value: 3, label: 'Regular', description: 'Plays weekly' },
-  { value: 4, label: 'Skilled', description: 'Experienced player' },
-  { value: 5, label: 'Expert', description: 'Highly skilled' }
+  { value: 4, label: 'Expert', description: 'Highly skilled' }
 ];
 
 export const DEFAULT_SETTINGS: GameSettings = {

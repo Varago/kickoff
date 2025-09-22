@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { NavigationTab } from './Navigation';
 import { useGameStore } from '../../store/gameStore';
+import { useScrollDirection } from '../../hooks/useScrollDirection';
 
 interface NavigationTabConfig {
   id: NavigationTab;
@@ -32,6 +33,20 @@ export const TabBar: React.FC<TabBarProps> = ({
     matches,
     currentMatch
   } = useGameStore();
+
+  // Auto-hiding navigation based on scroll direction
+  const { direction, isAtTop, isAtBottom } = useScrollDirection({
+    threshold: 15,
+    debounceMs: 50,
+    idleTimeoutMs: 200
+  });
+
+  // Determine if navigation should be visible
+  const shouldShowNavigation =
+    direction === 'up' ||         // Scrolling up
+    direction === 'idle' ||       // Not scrolling
+    isAtTop ||                   // At top of page
+    isAtBottom;                  // At bottom of page
 
   const getTabBadge = (tab: NavigationTabConfig) => {
     switch (tab.id) {
@@ -82,8 +97,14 @@ export const TabBar: React.FC<TabBarProps> = ({
   return (
     <motion.div
       initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ delay: 0.3, duration: 0.5 }}
+      animate={{
+        y: shouldShowNavigation ? 0 : 100,
+        opacity: shouldShowNavigation ? 1 : 0
+      }}
+      transition={{
+        duration: 0.3,
+        ease: "easeInOut"
+      }}
       className="fixed bottom-0 left-0 right-0 z-40"
     >
       {/* Glass morphism background */}

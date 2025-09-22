@@ -58,6 +58,38 @@ main {
   overscroll-behavior: contain;
   scroll-snap-type: y proximity;
   scroll-padding: 1rem;
+  /* Ensure smooth scrolling on all mobile devices */
+  scroll-behavior: smooth;
+  /* Optimize for mobile scroll performance */
+  transform: translateZ(0);
+  will-change: scroll-position;
+}
+
+/* Enhanced scrolling for main content areas */
+.mobile-page-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+  /* Better scroll performance */
+  transform: translateZ(0);
+  will-change: scroll-position;
+  /* Proper height management */
+  height: 100%;
+  overflow-y: auto;
+  /* Better momentum scrolling */
+  scroll-padding-top: 2rem;
+  scroll-padding-bottom: 6rem; /* Account for navigation */
+}
+
+/* Scrollable containers with proper momentum */
+.scroll-container-mobile {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  transform: translateZ(0);
+  /* Ensure containers can scroll properly */
+  max-height: calc(100vh - 8rem);
+  overflow-y: auto;
 }
 
 /* Touch optimization for buttons and interactive elements */

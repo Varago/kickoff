@@ -95,7 +95,7 @@ export const StandingsTable: React.FC<StandingsTableProps> = ({
       </Card>
 
       {/* Standings Rows */}
-      <div className="space-y-2">
+      <div className="space-y-2 scroll-container-mobile">
         <AnimatePresence>
           {standings.map((standing, index) => {
             const team = teams.find(t => t.id === standing.teamId);

@@ -239,7 +239,7 @@ export const Navigation: React.FC = () => {
           bindToElement(el);
           bindSwipeElement(el);
         }}
-        className="pb-20 pt-2 sm:pt-4 overflow-auto swipe-area w-full"
+        className="pb-20 pt-2 sm:pt-4 overflow-auto swipe-area w-full mobile-page-scroll"
       >
         <div className="w-full mx-auto px-3 sm:px-4 max-w-none sm:max-w-4xl sm:container">
           <AnimatePresence mode="wait" custom={direction}>

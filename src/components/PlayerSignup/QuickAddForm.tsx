@@ -48,7 +48,7 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
 
     // Validation
     if (!isValidPlayerName(trimmedName)) {
-      setNameError('Name must be 2-30 characters (letters, spaces, hyphens, apostrophes only)');
+      setNameError('Invalid name');
       haptic.warning();
       sounds.error();
       return;
@@ -56,7 +56,7 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
 
     // Check for duplicate names
     if (players.some(p => p.name.toLowerCase() === trimmedName.toLowerCase())) {
-      setNameError('Player name already exists');
+      setNameError('Name already exists');
       haptic.warning();
       sounds.error();
       return;
@@ -99,7 +99,6 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
     color: skill.value === 1 ? 'bg-orange-500' :
            skill.value === 2 ? 'bg-yellow-500' :
            skill.value === 3 ? 'bg-blue-500' :
-           skill.value === 4 ? 'bg-purple-500' :
            'bg-green-500'
   }));
 
@@ -121,9 +120,9 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
               <Plus className="text-white" size={20} />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">Quick Add Players</h2>
+              <h2 className="text-lg font-semibold text-white">Add Players</h2>
               <p className="text-sm text-gray-400">
-                {activePlayers.length} player{activePlayers.length !== 1 ? 's' : ''} registered
+                {activePlayers.length} registered
               </p>
             </div>
           </div>
@@ -236,7 +235,7 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
                   Skill Level: {skillPresets.find(s => s.level === selectedSkill)?.label || 'Custom'}
                 </label>
                 <div className="flex items-center space-x-1">
-                  {Array.from({ length: 5 }, (_, i) => (
+                  {Array.from({ length: 4 }, (_, i) => (
                     <div
                       key={i}
                       className={`w-2.5 h-2.5 rounded-full ${
@@ -265,23 +264,22 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
                   ))}
                 </div>
               ) : (
-                // Full grid layout when keyboard is hidden
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                // Row of circular buttons
+                <div className="flex justify-center space-x-4">
                   {skillPresets.map((preset) => (
                     <button
                       key={preset.level}
                       onClick={() => setSelectedSkill(preset.level)}
                       className={`
-                        mobile-touch-target px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200
-                        flex flex-col items-center justify-center space-y-1 min-h-[60px]
+                        mobile-touch-target w-16 h-16 rounded-full text-sm font-bold transition-all duration-200
+                        flex flex-col items-center justify-center
                         ${selectedSkill === preset.level
-                          ? 'bg-pitch-green text-white shadow-lg border-2 border-pitch-green'
-                          : 'bg-surface-elevated text-gray-400 hover:text-white hover:bg-gray-600 border-2 border-transparent'
+                          ? `${preset.color} text-white shadow-lg ring-4 ring-white/20`
+                          : 'bg-surface-elevated text-gray-400 hover:text-white hover:bg-gray-600'
                         }
                       `}
                     >
-                      <div className={`w-3 h-3 rounded-full ${preset.color}`} />
-                      <span className="font-semibold">{preset.level}</span>
+                      <span className="text-lg font-bold">{preset.level}</span>
                       <span className="text-xs">{preset.label}</span>
                     </button>
                   ))}
@@ -290,29 +288,6 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
             </div>
           )}
 
-          {/* Mode Info - Hide when keyboard is visible for space */}
-          {(isQuickMode || addToWaitlist) && !isKeyboardVisible && (
-            <div className={`border rounded-lg p-3 ${
-              addToWaitlist
-                ? 'bg-yellow-500/10 border-yellow-500/20'
-                : 'bg-pitch-green/10 border-pitch-green/20'
-            }`}>
-              <div className={`flex items-center space-x-2 ${
-                addToWaitlist ? 'text-yellow-400' : 'text-pitch-green'
-              }`}>
-                {addToWaitlist ? <Clock size={16} /> : <Zap size={16} />}
-                <span className="text-sm font-medium">
-                  {addToWaitlist ? 'Waitlist Mode' : 'Quick Mode'}: Using skill level {selectedSkill} ({skillPresets.find(s => s.level === selectedSkill)?.label})
-                </span>
-              </div>
-              <p className="text-xs text-gray-400 mt-1">
-                {addToWaitlist
-                  ? 'Adding players to the waitlist queue'
-                  : 'Type name and press Enter for lightning-fast adds'
-                }
-              </p>
-            </div>
-          )}
         </div>
 
         {/* Success Indicator */}
@@ -326,21 +301,12 @@ export const QuickAddForm: React.FC<QuickAddFormProps> = ({ onPlayerAdded }) => 
             >
               <CheckCircle className="text-green-400" size={16} />
               <span className="text-sm text-green-400 font-medium">
-                Player added{addToWaitlist ? ' to waitlist' : ''}!
+                Added!
               </span>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Keyboard Shortcuts Hint - Hide when keyboard is visible */}
-        {!isKeyboardVisible && (
-          <div className="text-center">
-            <p className="text-xs text-gray-500">
-              Press <kbd className="px-1.5 py-0.5 bg-gray-600 rounded text-xs">Enter</kbd> to add •
-              <kbd className="px-1.5 py-0.5 bg-gray-600 rounded text-xs ml-1">Tab</kbd> to skill level
-            </p>
-          </div>
-        )}
 
         {/* Keyboard Toolbar for mobile */}
         {isKeyboardVisible && (

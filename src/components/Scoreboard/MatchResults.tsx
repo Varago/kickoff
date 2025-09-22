@@ -99,7 +99,7 @@ export const MatchResults: React.FC<MatchResultsProps> = ({
       </Card>
 
       {/* Results List */}
-      <div className="space-y-3">
+      <div className="space-y-3 scroll-container-mobile">
         <AnimatePresence>
           {sortedMatches.map((match, index) => {
             const teamA = teams.find(t => t.id === match.teamAId);

@@ -29,6 +29,8 @@ interface GameStore extends GameState {
   togglePlayerCaptain: (playerId: string) => void;
   updateTeamColor: (teamId: string, color: TeamColor) => void;
   resetTeams: () => void;
+  autoFillTeamsFromWaitlist: () => void;
+  assignPlayerToTeam: (playerId: string, teamId: string | null) => void;
 
   // Match actions
   generateSchedule: () => void;
@@ -288,6 +290,12 @@ export const useGameStore = create<GameStore>()(
 
         set({ teams, players: updatedPlayers });
 
+        // Auto-fill remaining slots from waitlist after state is set
+        setTimeout(() => {
+          const store = get();
+          store.autoFillTeamsFromWaitlist();
+        }, 0);
+
         // Log the team generation results
         console.log(`Generated ${teamCount} teams:`);
         console.log(`- Assigned ${playersAssigned.length} players to teams`);
@@ -448,6 +456,92 @@ export const useGameStore = create<GameStore>()(
 
       resetTeams: () => {
         set({ teams: [], matches: [], standings: [], currentMatchId: null });
+      },
+
+      autoFillTeamsFromWaitlist: () => {
+        const state = get();
+        const waitlistPlayers = state.players.filter(p => p.isWaitlist).sort((a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime() // First joined, first assigned
+        );
+        const settings = state.settings;
+        const maxPlayersNeeded = settings.teamsCount * settings.playersPerTeam;
+
+        // Calculate current team capacity
+        const currentAssignedPlayers = state.teams.reduce((count, team) => count + team.players.length, 0);
+        const slotsAvailable = maxPlayersNeeded - currentAssignedPlayers;
+
+        if (slotsAvailable <= 0 || waitlistPlayers.length === 0) return;
+
+        // Take players from waitlist in FIFO order
+        const playersToAssign = waitlistPlayers.slice(0, slotsAvailable);
+
+        // Find teams with available slots, prioritizing teams with fewer players
+        const teamsWithSlots = state.teams
+          .filter(team => team.players.length < settings.playersPerTeam)
+          .sort((a, b) => a.players.length - b.players.length);
+
+        let teamIndex = 0;
+        const updatedTeams = [...state.teams];
+        const updatedPlayers = [...state.players];
+
+        playersToAssign.forEach(player => {
+          if (teamIndex < teamsWithSlots.length) {
+            const targetTeam = teamsWithSlots[teamIndex];
+
+            // Find the team in updatedTeams and add player
+            const teamToUpdate = updatedTeams.find(t => t.id === targetTeam.id);
+            if (teamToUpdate && teamToUpdate.players.length < settings.playersPerTeam) {
+              teamToUpdate.players.push(player);
+              teamToUpdate.averageSkill = calculateAverageSkill(teamToUpdate.players);
+
+              // Auto-assign captain if team doesn't have any
+              if (teamToUpdate.captainIds.length === 0) {
+                teamToUpdate.captainIds = [player.id];
+              }
+
+              // Move to next team or cycle back to first team with slots
+              if (teamToUpdate.players.length >= settings.playersPerTeam) {
+                teamIndex++;
+              } else if (teamIndex === teamsWithSlots.length - 1) {
+                teamIndex = 0; // Cycle back to fill remaining slots evenly
+              } else {
+                teamIndex++;
+              }
+            }
+
+            // Remove from waitlist
+            const playerIndex = updatedPlayers.findIndex(p => p.id === player.id);
+            if (playerIndex !== -1) {
+              updatedPlayers[playerIndex] = { ...player, isWaitlist: false };
+            }
+          }
+        });
+
+        set({ teams: updatedTeams, players: updatedPlayers });
+      },
+
+      assignPlayerToTeam: (playerId: string, teamId: string | null) => {
+        const state = get();
+        const player = state.players.find(p => p.id === playerId);
+        if (!player) return;
+
+        // If teamId is null, move to waitlist
+        if (teamId === null) {
+          get().movePlayer(playerId, null, null);
+          return;
+        }
+
+        // Check if team exists and has space
+        const targetTeam = state.teams.find(t => t.id === teamId);
+        if (!targetTeam) return;
+
+        if (targetTeam.players.length >= state.settings.playersPerTeam) {
+          console.warn(`Team ${targetTeam.name} is already full`);
+          return;
+        }
+
+        // Use existing movePlayer function to handle the assignment
+        get().movePlayer(playerId, null, teamId);
       },
 
       // Match actions
@@ -639,6 +733,12 @@ export const useGameStore = create<GameStore>()(
       updateSettings: (newSettings: Partial<GameSettings>) => {
         const state = get();
         const updatedSettings = { ...state.settings, ...newSettings };
+
+        // Check if team settings changed that might require waitlist adjustment
+        const teamSettingsChanged =
+          newSettings.teamsCount !== undefined && newSettings.teamsCount !== state.settings.teamsCount ||
+          newSettings.playersPerTeam !== undefined && newSettings.playersPerTeam !== state.settings.playersPerTeam;
+
         set({
           settings: updatedSettings,
           timerState: {
@@ -646,6 +746,14 @@ export const useGameStore = create<GameStore>()(
             timeRemaining: updatedSettings.matchDuration * 60
           }
         });
+
+        // Auto-fill teams from waitlist if team settings changed
+        if (teamSettingsChanged && state.teams.length > 0) {
+          setTimeout(() => {
+            const store = get();
+            store.autoFillTeamsFromWaitlist();
+          }, 0);
+        }
       },
 
       // Standings actions
